@@ -1,1 +1,4 @@
 # Documents Directory
+
+
+## Pseudocode 

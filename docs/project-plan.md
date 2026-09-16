@@ -89,5 +89,5 @@ Each execution will cover the following criteria:
 |---|---|
 | Mergesort | Yazek |
 | Quicksort | Cassandra |
-| Shacker Sort | Colin Nykanen |
+| Shaker sort (bidirectional bubble) | Colin Nykanen |
 | Heapsort | Rowan |

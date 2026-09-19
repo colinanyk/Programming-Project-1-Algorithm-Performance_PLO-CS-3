@@ -21,6 +21,7 @@ class MergesortTest {
             new int[] {1, 2, 3, 4},
             result.getSortedArray()
         );
+
         assertEquals(5, result.getComparisons());
     }
 
@@ -34,6 +35,7 @@ class MergesortTest {
             new int[] {0, 1, 2, 4, 5, 8},
             result.getSortedArray()
         );
+
         assertEquals(10, result.getComparisons());
     }
 
@@ -47,7 +49,20 @@ class MergesortTest {
             new int[] {0, 1, 2, 3, 4, 5, 6, 7},
             result.getSortedArray()
         );
+
         assertEquals(16, result.getComparisons());
+    }
+
+    @Test
+    void sortsNegativeNumbers() {
+        int[] input = {-3, 5, -1, 0, -8};
+
+        Mergesort.SortResult result = Mergesort.sort(input);
+
+        assertArrayEquals(
+            new int[] {-8, -3, -1, 0, 5},
+            result.getSortedArray()
+        );
     }
 
     @Test
@@ -61,12 +76,24 @@ class MergesortTest {
 
     @Test
     void emptyAndSingleValueArraysUseZeroComparisons() {
-        Mergesort.SortResult emptyResult = Mergesort.sort(new int[] {});
-        Mergesort.SortResult singleResult = Mergesort.sort(new int[] {9});
+        Mergesort.SortResult emptyResult =
+            Mergesort.sort(new int[] {});
 
-        assertArrayEquals(new int[] {}, emptyResult.getSortedArray());
+        Mergesort.SortResult singleResult =
+            Mergesort.sort(new int[] {9});
+
+        assertArrayEquals(
+            new int[] {},
+            emptyResult.getSortedArray()
+        );
+
         assertEquals(0, emptyResult.getComparisons());
-        assertArrayEquals(new int[] {9}, singleResult.getSortedArray());
+
+        assertArrayEquals(
+            new int[] {9},
+            singleResult.getSortedArray()
+        );
+
         assertEquals(0, singleResult.getComparisons());
     }
 

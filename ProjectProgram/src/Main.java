@@ -14,5 +14,7 @@ public class Main {
         new Quicksort();
         new Heapsort();
         new ShakerSort();
+        
+        System.out.println("test");
     }
 }

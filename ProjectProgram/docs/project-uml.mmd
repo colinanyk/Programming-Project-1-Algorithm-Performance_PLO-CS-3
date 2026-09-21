@@ -1,0 +1,102 @@
+classDiagram
+    direction LR
+    class Main {
+        +main(args : String[]) void
+    }
+
+    class SortingAlgorithm {
+        +sort(inputArray : int[]) SortResult
+        +getName() String
+    }
+
+    class SortResult {
+        -sortedArray : int[]
+        -comparisonCount : long
+        +getSortedArray() int[]
+        +getComparisons() long
+    }
+
+    class ResultsManager {
+        +recordResult(algorithmName : String, n : int, originalArray : int[], comparisonCount : long) void
+        +createSummary(algorithmName : String, n : int) String
+    }
+
+    class Metric {
+        +determineBigO(inputSizes : int[], comparisonCounts : long[]) String
+        +determineBigOmega(inputSizes : int[], comparisonCounts : long[]) String
+        +determineBigTheta(inputSizes : int[], comparisonCounts : long[]) String
+    }
+
+    class Reporting {
+        +printResults(summary : String, bigO : String, bigOmega : String, bigTheta : String) void
+        +saveResults(fileName : String, summary : String, bigO : String, bigOmega : String, bigTheta : String) void
+    }
+
+    class Mergesort {
+        -Mergesort()
+        +sort(input : int[]) SortResult
+        -mergeSort(array : int[], temporaryArray : int[], left : int, right : int) long
+        -merge(array : int[], temporaryArray : int[], left : int, middle : int, right : int) long
+    }
+
+    class MergesortSortResult {
+        -sortedArray : int[]
+        -comparisons : long
+        -SortResult(sortedArray : int[], comparisons : long)
+        +getSortedArray() int[]
+        +getComparisons() long
+    }
+
+    class Quicksort {
+        -comparisons : int
+        +sort(a : int[]) void
+        +getComparisons() int
+        -quicksort(a : int[], low : int, high : int) void
+        -partition(a : int[], low : int, high : int) int
+        -swap(a : int[], i : int, j : int) void
+    }
+
+    class Heapsort {
+        +Heapsort()
+        +sort(pq : int[]) int
+        -sink(pq : int[], k : int, n : int) void
+        -less(pq : int[], i : int, j : int) boolean
+        -exch(pq : int[], i : int, j : int) void
+    }
+
+    class ShakerSort {
+        -ShakerSort()
+        +sort(input : int[]) ShakerSortSortResult
+        -shakerSort(array : int[]) long
+        -swap(array : int[], first : int, second : int) void
+    }
+
+    class ShakerSortSortResult {
+        -sortedArray : int[]
+        -comparisons : long
+        -SortResult(sortedArray : int[], comparisons : long)
+        +getSortedArray() int[]
+        +getComparisons() long
+    }
+
+    <<interface>> SortingAlgorithm
+    <<final>> Mergesort
+    <<final>> ShakerSort
+
+    SortingAlgorithm <|.. Mergesort
+    SortingAlgorithm <|.. Quicksort
+    SortingAlgorithm <|.. Heapsort
+    SortingAlgorithm <|.. ShakerSort
+    Main ..> Mergesort : instantiates
+    Main ..> Quicksort : instantiates
+    Main ..> Heapsort : instantiates
+    Main ..> ShakerSort : uses
+    Main ..> ResultsManager : calls
+    Main ..> Metric : calls
+    Main ..> Reporting : calls
+    Mergesort ..> MergesortSortResult : returns
+    ShakerSort ..> ShakerSortSortResult : returns
+    ResultsManager ..> SortResult : stores/uses
+    Reporting ..> ResultsManager : reports summaries
+    Reporting ..> Metric : reports complexity
+    Reporting ..> SortResult : reports results

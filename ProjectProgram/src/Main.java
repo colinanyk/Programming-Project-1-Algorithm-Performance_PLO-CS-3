@@ -10,10 +10,10 @@ public class Main {
         Quick.sort(values);
         System.out.println(values[0] + " " + values[1] + " " + values[2]);
 
-        new Mergesort();
+        Mergesort.sort(new int[] {3, 1, 2});
         new Quicksort();
         new Heapsort();
-        new ShakerSort();
+        ShakerSort.sort(new int[] {3, 1, 2});
         
         System.out.println("test");
     }

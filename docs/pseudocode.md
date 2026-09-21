@@ -1,53 +1,49 @@
 # Sorting Algorithm Project Pseudocode
-## `Client.java`
+
+UML Diagram can be found in: `ProjectProgram/docs/project-uml.mmd`.
+
+## `Main.java`
 
 ```text
-CLASS Client
+CLASS Main
 
-    MAIN METHOD
-        SET constant N_VALUES to [4, 6, 8]
-        CREATE the four sorting algorithm objects
+    PUBLIC STATIC METHOD main(args : String[])
+        CREATE or obtain the integer arrays used by the experiment
+        CREATE Quicksort and Heapsort objects
+        USE the Mergesort and ShakerSort sorting utilities
+        CREATE ResultsManager, Metric, and Reporting objects
 
-        FOR EACH n in N_VALUES
-            GENERATE every permutation of 0 through n - 1
-            FOR EACH permutation
-                FOR EACH sorting algorithm
-                    COPY the permutation so every algorithm gets the same input
-                    SORT the copy
-                    RECORD algorithm name, original array, and comparison count
-                END FOR
-            END FOR
-            FIND the best 10, worst 10, and average for each algorithm
-            PRINT and save a clearly labeled summary
+        FOR EACH input array
+            SAVE the input size and a copy of the original array
+
+            RUN Mergesort on the input
+            RECORD the algorithm name, input size, original array,
+                and comparison count with ResultsManager
+
+            RUN Quicksort on a separate copy of the input
+            GET the Quicksort comparison count
+            RECORD the result with ResultsManager
+
+            RUN Heapsort on a separate copy of the input
+            GET the comparison count returned by Heapsort
+            RECORD the result with ResultsManager
+
+            RUN ShakerSort on the input
+            RECORD the algorithm name, input size, original array,
+                and comparison count with ResultsManager
         END FOR
-        IF an error occurs
-            PRINT a helpful error message
-        END IF
-    END MAIN METHOD
 
-END CLASS
-```
+        FOR EACH sorting algorithm
+            CREATE a summary with ResultsManager
+            COLLECT the tested input sizes and comparison counts
 
-## `PermutationGenerator.java`
+            CALL Metric.determineBigO
+            CALL Metric.determineBigOmega
+            CALL Metric.determineBigTheta
 
-```text
-CLASS PermutationGenerator
-
-    METHOD generatePermutations(n)
-        CREATE starting array [0, 1, 2, ..., n - 1]
-        REPEAT
-            ADD a copy of the current array to the permutation list
-            FIND the next array in lexicographic order
-        UNTIL no next permutation exists
-        RETURN the complete permutation list
-    END METHOD
-
-    METHOD nextPermutation(array)
-        FIND the rightmost value that is smaller than the value after it
-        IF none exists, RETURN false
-        FIND the rightmost larger value and SWAP the two values
-        REVERSE the values after the swapped position
-        RETURN true
+            CALL Reporting.printResults with the summary and metrics
+            CALL Reporting.saveResults with the file name, summary, and metrics
+        END FOR
     END METHOD
 
 END CLASS
@@ -58,12 +54,12 @@ END CLASS
 ```text
 INTERFACE SortingAlgorithm
 
-    METHOD sort(inputArray)
-        EXPECTED INPUT: unsorted integer array
-        EXPECTED OUTPUT: SortResult containing the sorted array and comparison count
+    PUBLIC METHOD sort(inputArray : int[]) RETURNS SortResult
+        ACCEPT an unsorted integer array
+        RETURN its sorted values and comparison count
     END METHOD
 
-    METHOD getName()
+    PUBLIC METHOD getName() RETURNS String
         RETURN the algorithm name
     END METHOD
 
@@ -74,42 +70,197 @@ END INTERFACE
 
 ```text
 CLASS SortResult
-    VARIABLE sortedArray
-    VARIABLE comparisonCount
-    CONSTRUCTOR receives sortedArray and comparisonCount
-    METHODS return the stored array and count
 
-END CLASS
-```
+    PRIVATE VARIABLE sortedArray : int[]
+    PRIVATE VARIABLE comparisonCount : long
 
-## `MergeSort.java`
+    CONSTRUCTOR SortResult(sortedArray, comparisonCount)
+        STORE a copy of sortedArray
+        STORE comparisonCount
+    END CONSTRUCTOR
 
-```text
-CLASS MergeSort IMPLEMENTS SortingAlgorithm
+    PUBLIC METHOD getSortedArray() RETURNS int[]
+        RETURN a copy of sortedArray
+    END METHOD
 
-    METHOD sort(inputArray)
-        COPY the input array
-        RECURSIVELY split the copy into halves
-        MERGE the halves in sorted order
-        INCREASE the counter for each comparison between two values
-        RETURN the sorted copy and comparison count
+    PUBLIC METHOD getComparisons() RETURNS long
+        RETURN comparisonCount
     END METHOD
 
 END CLASS
 ```
 
-## `QuickSort.java`
+## `Mergesort.java`
 
 ```text
-CLASS QuickSort IMPLEMENTS SortingAlgorithm
+FINAL CLASS Mergesort IMPLEMENTS SortingAlgorithm
 
-    METHOD sort(inputArray)
-        COPY the input array
-        USE the last value as the pivot
-        COMPARE each remaining value with the pivot and increase the counter each time
-        MOVE smaller values before the pivot and larger values after it
-        REPEAT on the left and right sections
-        RETURN the sorted copy and comparison count
+    PRIVATE CONSTRUCTOR Mergesort
+        PREVENT creation of utility-class objects
+    END CONSTRUCTOR
+
+    PUBLIC STATIC METHOD sort(input : int[]) RETURNS SortResult
+        IF input is null
+            REPORT an invalid input error
+        END IF
+
+        COPY input into sortedArray
+        CREATE temporaryArray with the same length
+        SET comparisons to mergeSort(sortedArray, temporaryArray, 0,
+            sortedArray length - 1)
+        RETURN a result containing sortedArray and comparisons
+    END METHOD
+
+    PRIVATE STATIC METHOD mergeSort(array, temporaryArray, left, right)
+        RETURNS long
+        IF left is greater than or equal to right
+            RETURN 0
+        END IF
+
+        SET middle to the midpoint between left and right
+        SET comparisons to 0
+        ADD comparisons from sorting the left half
+        ADD comparisons from sorting the right half
+        ADD comparisons from merging both halves
+        RETURN comparisons
+    END METHOD
+
+    PRIVATE STATIC METHOD merge(array, temporaryArray, left, middle, right)
+        RETURNS long
+        SET indexes for the left half, right half, and temporary array
+        SET comparisons to 0
+
+        WHILE both halves contain unmerged values
+            INCREASE comparisons
+            COPY the smaller current value into temporaryArray
+            ADVANCE the index for the selected value
+        END WHILE
+
+        COPY any remaining left-half values into temporaryArray
+        COPY any remaining right-half values into temporaryArray
+        COPY the merged range back into array
+        RETURN comparisons
+    END METHOD
+
+END CLASS
+```
+
+## `MergesortSortResult`
+
+```text
+CLASS MergesortSortResult
+
+    PRIVATE VARIABLE sortedArray : int[]
+    PRIVATE VARIABLE comparisons : long
+
+    PRIVATE CONSTRUCTOR SortResult(sortedArray, comparisons)
+        STORE sortedArray and comparisons
+    END CONSTRUCTOR
+
+    PUBLIC METHOD getSortedArray() RETURNS int[]
+        RETURN a copy of sortedArray
+    END METHOD
+
+    PUBLIC METHOD getComparisons() RETURNS long
+        RETURN comparisons
+    END METHOD
+
+END CLASS
+```
+
+`MergesortSortResult` represents the `SortResult` nested inside `Mergesort` in
+the current implementation.
+
+## `Quicksort.java`
+
+```text
+CLASS Quicksort IMPLEMENTS SortingAlgorithm
+
+    PRIVATE VARIABLE comparisons : int
+
+    PUBLIC METHOD sort(a : int[]) RETURNS void
+        SET comparisons to 0
+        CALL quicksort(a, 0, a length - 1)
+    END METHOD
+
+    PUBLIC METHOD getComparisons() RETURNS int
+        RETURN comparisons
+    END METHOD
+
+    PRIVATE METHOD quicksort(a, low, high)
+        IF low is greater than or equal to high
+            RETURN
+        END IF
+
+        SET pivotIndex to partition(a, low, high)
+        CALL quicksort for the values before pivotIndex
+        CALL quicksort for the values after pivotIndex
+    END METHOD
+
+    PRIVATE METHOD partition(a, low, high) RETURNS int
+        SET pivot to a[high]
+        SET smallerValueIndex to low - 1
+
+        FOR each index from low through high - 1
+            INCREASE comparisons
+            IF a[index] is less than or equal to pivot
+                ADVANCE smallerValueIndex
+                SWAP a[smallerValueIndex] and a[index]
+            END IF
+        END FOR
+
+        MOVE the pivot after the smaller values
+        RETURN the pivot index
+    END METHOD
+
+    PRIVATE METHOD swap(a, i, j)
+        EXCHANGE a[i] and a[j]
+    END METHOD
+
+END CLASS
+```
+
+## `Heapsort.java`
+
+```text
+CLASS Heapsort IMPLEMENTS SortingAlgorithm
+
+    PUBLIC CONSTRUCTOR Heapsort
+        INITIALIZE a Heapsort object
+    END CONSTRUCTOR
+
+    PUBLIC STATIC METHOD sort(pq : int[]) RETURNS int
+        SET comparisons to 0
+        BUILD a max heap by calling sink on each non-leaf value
+
+        SET the active heap size to the array length
+        WHILE the active heap contains more than one value
+            EXCHANGE the maximum value with the final active value
+            REDUCE the active heap size
+            CALL sink to restore the heap
+        END WHILE
+
+        RETURN comparisons
+    END METHOD
+
+    PRIVATE STATIC METHOD sink(pq, k, n)
+        WHILE the value at k has a child
+            SELECT the larger child using less
+            IF the parent is not less than that child
+                STOP
+            END IF
+            EXCHANGE the parent and child
+            CONTINUE from the child's position
+        END WHILE
+    END METHOD
+
+    PRIVATE STATIC METHOD less(pq, i, j) RETURNS boolean
+        INCREASE comparisons
+        RETURN whether the value at i is less than the value at j
+    END METHOD
+
+    PRIVATE STATIC METHOD exch(pq, i, j)
+        EXCHANGE the values at the one-based heap indexes i and j
     END METHOD
 
 END CLASS
@@ -118,58 +269,165 @@ END CLASS
 ## `ShakerSort.java`
 
 ```text
-CLASS ShakerSort IMPLEMENTS SortingAlgorithm
+FINAL CLASS ShakerSort IMPLEMENTS SortingAlgorithm
 
-    METHOD sort(inputArray)
-        COPY the input array
-        REPEAT while a swap occurs
-            MOVE forward, compare neighboring values, count, and swap if needed
-            MOVE backward, compare neighboring values, count, and swap if needed
-        END REPEAT
-        RETURN the sorted copy and comparison count
+    PRIVATE CONSTRUCTOR ShakerSort
+        PREVENT creation of utility-class objects
+    END CONSTRUCTOR
+
+    PUBLIC STATIC METHOD sort(input : int[]) RETURNS ShakerSortSortResult
+        IF input is null
+            REPORT an invalid input error
+        END IF
+
+        COPY input into sortedArray
+        SET comparisons to shakerSort(sortedArray)
+        RETURN a result containing sortedArray and comparisons
+    END METHOD
+
+    PRIVATE STATIC METHOD shakerSort(array : int[]) RETURNS long
+        SET left boundary to 0
+        SET right boundary to array length - 1
+        SET comparisons to 0
+        SET swapped to true
+
+        WHILE swapped is true AND left boundary is less than right boundary
+            SET swapped to false
+
+            FOR index from left boundary through right boundary - 1
+                INCREASE comparisons
+                IF array[index] is greater than array[index + 1]
+                    CALL swap for the neighboring values
+                    SET swapped to true
+                END IF
+            END FOR
+
+            DECREASE the right boundary
+            IF no values were swapped
+                STOP
+            END IF
+
+            SET swapped to false
+            FOR index from right boundary down through left boundary + 1
+                INCREASE comparisons
+                IF array[index - 1] is greater than array[index]
+                    CALL swap for the neighboring values
+                    SET swapped to true
+                END IF
+            END FOR
+
+            INCREASE the left boundary
+        END WHILE
+
+        RETURN comparisons
+    END METHOD
+
+    PRIVATE STATIC METHOD swap(array, first, second)
+        EXCHANGE array[first] and array[second]
     END METHOD
 
 END CLASS
 ```
 
-## `HeapSort.java`
+## `ShakerSortSortResult`
 
 ```text
-CLASS HeapSort IMPLEMENTS SortingAlgorithm
+CLASS ShakerSortSortResult
 
-    METHOD sort(inputArray)
-        COPY the input array
-        BUILD a max heap
-        REPEATEDLY
-            MOVE the largest value to the end
-            REBUILD the remaining heap
-            INCREASE the counter for each comparison between heap values
-        END REPEAT
-        RETURN the sorted copy and comparison count
+    PRIVATE VARIABLE sortedArray : int[]
+    PRIVATE VARIABLE comparisons : long
+
+    PRIVATE CONSTRUCTOR SortResult(sortedArray, comparisons)
+        STORE sortedArray and comparisons
+    END CONSTRUCTOR
+
+    PUBLIC METHOD getSortedArray() RETURNS int[]
+        RETURN a copy of sortedArray
+    END METHOD
+
+    PUBLIC METHOD getComparisons() RETURNS long
+        RETURN comparisons
     END METHOD
 
 END CLASS
 ```
+
+`ShakerSortSortResult` represents the result type owned and returned by the
+assumed `ShakerSort` implementation.
 
 ## `ResultsManager.java`
 
 ```text
 CLASS ResultsManager
 
-    METHOD recordResult(algorithmName, n, originalArray, comparisonCount)
-        STORE the result
+    PUBLIC METHOD recordResult(algorithmName, n, originalArray, comparisonCount)
+        STORE the algorithm name
+        STORE n and a copy of originalArray
+        STORE comparisonCount
     END METHOD
 
-    METHOD createSummary(algorithmName, n)
-        SORT matching results by comparison count
-        SELECT the 10 lowest results as best cases
-        SELECT the 10 highest results as worst cases
-        CALCULATE average comparisons across every permutation
-        RETURN the labeled summary
+    PUBLIC METHOD createSummary(algorithmName, n) RETURNS String
+        FIND stored results matching algorithmName and n
+        ORDER the matches by comparison count
+        SELECT up to 10 lowest comparison counts as best cases
+        SELECT up to 10 highest comparison counts as worst cases
+        CALCULATE the average comparison count
+        RETURN a labeled summary
     END METHOD
 
-    METHOD saveSummary(summary)
-        WRITE the summary to an output file
+END CLASS
+```
+
+## `Metric.java`
+
+```text
+CLASS Metric
+
+    PUBLIC METHOD determineBigO(inputSizes : int[], comparisonCounts : long[])
+        RETURNS String
+        COMPARE the observed growth with common complexity growth functions
+        DETERMINE an asymptotic upper bound
+        RETURN the Big-O label
+    END METHOD
+
+    PUBLIC METHOD determineBigOmega(inputSizes : int[], comparisonCounts : long[])
+        RETURNS String
+        COMPARE the observed growth with common complexity growth functions
+        DETERMINE an asymptotic lower bound
+        RETURN the Big-Omega label
+    END METHOD
+
+    PUBLIC METHOD determineBigTheta(inputSizes : int[], comparisonCounts : long[])
+        RETURNS String
+        COMPARE the Big-O upper bound and Big-Omega lower bound
+        IF the bounds have the same growth rate
+            RETURN the matching Big-Theta label
+        END IF
+        RETURN a label indicating that no tight bound was identified
+    END METHOD
+
+END CLASS
+```
+
+## `Reporting.java`
+
+```text
+CLASS Reporting
+
+    PUBLIC METHOD printResults(summary, bigO, bigOmega, bigTheta)
+        PRINT the summary with a clear heading
+        PRINT the Big-O result
+        PRINT the Big-Omega result
+        PRINT the Big-Theta result
+    END METHOD
+
+    PUBLIC METHOD saveResults(fileName, summary, bigO, bigOmega, bigTheta)
+        OPEN fileName for output
+        WRITE the summary and all three complexity results
+        CLOSE the output file
+        IF writing fails
+            REPORT a helpful output error
+        END IF
     END METHOD
 
 END CLASS

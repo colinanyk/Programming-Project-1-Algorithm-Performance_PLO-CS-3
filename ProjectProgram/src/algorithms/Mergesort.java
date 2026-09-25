@@ -5,6 +5,7 @@ import java.util.Arrays;
 /**
  * Sorts integer arrays with merge sort and counts ordering comparisons.
  *
+ * @author Yakez Owens CS2430
  * <p>A comparison is counted only when two array elements are compared inside
  * the merge step. Loop conditions and index checks are not counted.</p>
  */

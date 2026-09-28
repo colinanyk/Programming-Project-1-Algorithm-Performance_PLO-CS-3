@@ -5,6 +5,7 @@
 			<attribute name="module" value="true"/>
 		</attributes>
 	</classpathentry>
+	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/5"/>
 	<classpathentry kind="src" path="ProjectProgram/src"/>
 	<classpathentry kind="lib" path="ProjectProgram/lib/apiguardian-api-1.1.2.jar"/>
 	<classpathentry kind="lib" path="ProjectProgram/lib/junit-jupiter-5.8.1.jar"/>
